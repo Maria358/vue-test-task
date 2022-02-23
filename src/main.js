@@ -13,8 +13,8 @@ Vue.use(KeenUI);
 
 /* eslint-disable no-new */
 new Vue({
-  el         : '#app',
+  el: '#app',
   router,
-  template   : '<App/>',
-  components : {App}
+  template: '<App/>',
+  components: { App }
 });

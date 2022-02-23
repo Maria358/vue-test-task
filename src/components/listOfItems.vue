@@ -15,13 +15,13 @@
                         type="checkbox"
                         v-model="task.complete"
                         class="task-input"
-                        @click="itemId = index"
+                        @click="onCheckboxClick(index, task)"
                     />
                     {{ task.name }}
                 </label>
             </li>
         </ul>
-        <ul class="tasks" v-if="!this.$props.isCompleted">
+        <ul class="tasks" v-else-if="!this.$props.isCompleted">
             <li
                 v-for="(task, index) in pendingItems"
                 :class="{ complete: task.complete }"
@@ -36,7 +36,7 @@
                         type="checkbox"
                         v-model="task.complete"
                         class="task-input"
-                        @click="itemId = index"
+                        @click="onCheckboxClick(index, task)"
                     />
                     {{ task.name }}
                 </label>
@@ -52,56 +52,74 @@ export default {
     data() {
         return {
             tasks: [
-                { name: "create skeleton of todo", complete: true, pending: false },
-                { name: "add ability to add tasks", complete: true, pending: false},
+                { name: "create skeleton of todo", complete: true },
+                { name: "add ability to add tasks", complete: true},
                 {
                     name: 'clear task name after clicking "Add"',
-                    complete: false, pending: true
+                    complete: false
                 },
                 {
                     name: 'put "Add" button in one line with input',
-                    complete: false,  pending: true
+                    complete: false
                 },
                 {
                     name: 'add new task by hitting Enter instead of clicking "Add"',
-                    complete: false, pending: true
+                    complete: false
                 },
                 {
                     name: "replace <input> with <ui-checkbox> in tasks list",
-                    complete: false, pending: true
+                    complete: false
                 },
-                { name: "when task is complete cross it out", complete: false, pending: true },
+                { name: "when task is complete cross it out", complete: false },
                 {
                     name: 'split tasks into "pending" and "complete" tabs using keen-ui component <ui-tabs>',
-                    complete: false, pending: true
+                    complete: false
                 },
-                { name: "don't allow to add empty tasks", complete: false, pending: true },
+                { name: "don't allow to add empty tasks", complete: false },
                 {
                     name: "make list of tasks scrollable, if there're are a lot of tasks",
-                    complete: false, pending: true
+                    complete: false
                 },
                 {
                     name: "extract list item into a separate vue.js component",
-                    complete: false, pending: true
+                    complete: false
                 },
                 {
                     name: "persist tasks list in a local storage",
-                    complete: false, pending: true
+                    complete: false
                 },
-                { name: "add animation on task completion", complete: false, pending: true },
+                { name: "add animation on task completion", complete: false},
             ],
             itemId: 0
         };
     },
     mounted(){
-       localStorage.setItem('tasks',  JSON.stringify(this.tasks));
-       this.$emit('tasks', this.tasks);
+        if(localStorage.getItem('tasks')){
+            this.tasks = JSON.parse(localStorage.getItem('tasks'));
+            this.$emit('tasks', this.tasks);
+            return;
+        }
+        localStorage.setItem('tasks',  JSON.stringify(this.tasks));
+        this.$emit('tasks', this.tasks);
+    },
+    methods:{
+        onCheckboxClick(index, task){
+            this.itemId = index;
+
+            this.tasks.forEach((el, idx) => {
+               if(el === task){
+                   el.complete = el.complete ? false : true;
+               }
+            });
+
+            this.$emit('update');
+        }
     },
     computed:{
-        completedItems(condition){
+        completedItems(){
             return this.tasks.filter(el => el.complete === true);
         },
-        pendingItems(condition){
+        pendingItems(){
             return this.tasks.filter(el => el.complete === false);
         }
     }
